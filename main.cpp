@@ -115,13 +115,13 @@ int explicit_scheme() {
 			return 0;
 		}
 
-
-		for (int i = 0; i < N + 1; i++) {
-			fprintf(output, "%f %f\n", i*h_step, solution(i*h_step, j*tau));
-			fprintf(output_1, "%f %f\n", i*h_step, prevd[i]);	
-			//cout << "step " << i*h_step << " our_solution=" << prevd[i] << " solution " << solution(i*h_step, j*tau) << " delta " << abs(solution(i*h_step, j*tau)-prevd[i]) << endl;
+		if (k%500 == 0) {
+			for (int i = 0; i < N + 1; i++) {
+				fprintf(output, "%f %f\n", i*h_step, solution(i*h_step, j*tau));
+				fprintf(output_1, "%f %f\n", i*h_step, prevd[i]);	
+				//cout << "step " << i*h_step << " our_solution=" << prevd[i] << " solution " << solution(i*h_step, j*tau) << " delta " << abs(solution(i*h_step, j*tau)-prevd[i]) << endl;
+			}
 		}
-
 				
 		k++;
 	}
@@ -213,10 +213,12 @@ int unexplicit_scheme() {
 			return 0;
 		}
 		
-		for (int j = 0; j < N + 1; j++) {
-			fprintf(output, "%f %f\n", j*h_step, solution(j * h_step, i * tau));
-			fprintf(output_1, "%f %f\n", j*h_step, prevd[j]);
-			//cout << k << " " << prevd[j] << endl;
+		if (k%500 == 0) {
+			for (int j = 0; j < N + 1; j++) {
+				fprintf(output, "%f %f\n", j*h_step, solution(j * h_step, i * tau));
+				fprintf(output_1, "%f %f\n", j*h_step, prevd[j]);
+				//cout << k << " " << prevd[j] << endl;
+			}
 		}
 
 		k++;

@@ -1,0 +1,6 @@
+set terminal postscript eps enhanced color solid
+set output "Result_ex.ps"
+set datafile separator ' '
+set grid xtics ytics
+plot "ex_exact.txt" using 1:2 title "exact" with lines,\
+     "ex_solution.txt" using 1:2 title "solution" with lines
