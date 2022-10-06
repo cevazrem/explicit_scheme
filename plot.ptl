@@ -1,0 +1,6 @@
+set terminal postscript eps enhanced color solid
+set output "Result.ps"
+set datafile separator ' '
+set grid xtics ytics
+plot "unex_exact.txt" using 1:2 title "Y_1" with lines,\
+     "unex_solution.txt" using 1:2 title "Y_2" with lines
