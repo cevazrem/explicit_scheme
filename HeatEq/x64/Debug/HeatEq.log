@@ -1,0 +1,4 @@
+﻿  HeatEq.cpp
+C:\Users\cevaz\source\repos\HeatEq\HeatEq\HeatEq.cpp(27,8): warning C4244: инициализация: преобразование "double" в "int", возможна потеря данных
+C:\Users\cevaz\source\repos\HeatEq\HeatEq\HeatEq.cpp(28,8): warning C4244: инициализация: преобразование "double" в "int", возможна потеря данных
+  HeatEq.vcxproj -> C:\Users\cevaz\source\repos\HeatEq\x64\Debug\HeatEq.exe
