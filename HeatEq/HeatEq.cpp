@@ -17,7 +17,7 @@ double k0 = 0.001;
 double q0 = 0.0005;
 double tf = 100.0;
 
-double T = 50.0; //Граница по времени
+double T = 70.0; //Граница по времени
 double tau = 0.1; //Шаг по времени
 
 double L_T = 2 * pi * sqrt(k0 / q0) * sqrt((sigma + 1) / sigma * sigma);
@@ -229,21 +229,17 @@ void implicit_scheme(double* y, double tau)
 		one_step(y, tau, current_time, y);
 
 		if (cnt % 10 == 0)
-			for (int i = 0; i < N1 + 1; i++)
+			for (int i = 0; i < N1 + 1; i++) {
 				fprintf(Local_out, "%f %f\n", coord[i], y[i]);
 
+				double koef = 2 * (sigma + 1) / (sigma * (sigma + 2));
+				double cosin = cos((coord[i] * pi) / L_T) * cos((coord[i] * pi) / L_T);
+				exact[i] = powl(q0 * (tf - current_time), (-1 / sigma)) * powl(koef * cosin, 1 / sigma);
+				if (abs(coord[i]) > l / 2)
+					exact[i] = 0;
+				fprintf(Local_exact, "%f %f\n", coord[i], exact[i]);
+			}
 		fprintf(Local_time, "%f \n", tau);
-
-		for (int i = 0; i < N1 + 1; i++)
-		{
-			double koef = 2 * (sigma + 1) / (sigma * (sigma + 2));
-			double cosin = cos((coord[i] * pi) / L_T) * cos((coord[i] * pi) / L_T);
-			exact[i] = powl(q0 * (tf - T), (-1 / sigma)) * powl(koef * cosin, 1 / sigma);
-			if (abs(coord[i]) > l / 2)
-				exact[i] = 0;
-			fprintf(Local_exact, "%f %f\n", coord[i], exact[i]);
-		}
-
 	} while (current_time < T);
 
 	for (int i = 0; i < N1 + 1; i++)
@@ -268,10 +264,10 @@ int main()
 	y_curr = (double*)calloc(N1 + 1, sizeof(double));
 	
 	//Данные на i+1 слое
-	y_next = (double*)calloc(N1 + 1, sizeof(double)); /* data on j+1 layer */
+	y_next = (double*)calloc(N1 + 1, sizeof(double));
 
 	//Точное решение
-	exact = (double*)calloc(N1 + 1, sizeof(double)); /* array for exact */
+	exact = (double*)calloc(N1 + 1, sizeof(double)); 
 
 	//Для прогонки
 	alpha = (double*)calloc(N1, sizeof(double));
@@ -281,10 +277,6 @@ int main()
 	B = (double*)calloc(N1, sizeof(double));
 	C = (double*)calloc(N1, sizeof(double));
 	F = (double*)calloc(N1 + 1, sizeof(double));
-
-	//cout << "Coord step " << N1 << endl;
-	//cout << "Time step " << N2 << endl;
-	//cout << "L= " << l << endl;
 
 	//Зададим сетку
 	for (int i = 0; i < N1 + 1; i++)
