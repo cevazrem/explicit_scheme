@@ -17,7 +17,7 @@ double k0 = 0.001;
 double q0 = 0.0005;
 double tf = 100.0;
 
-double T = 70.0; //Граница по времени
+double T = 85.0; //Граница по времени
 double tau = 0.1; //Шаг по времени
 
 double L_T = 2 * pi * sqrt(k0 / q0) * sqrt((sigma + 1) / sigma * sigma);
@@ -33,7 +33,7 @@ double tau_max = 1;
 
 double gamma = tau / (step * step);
 
-double* coord, * y_null, * y_curr, * y_next, * alpha, * beta, * delta, * exact, * A, * B, * C, * F;
+double* coord, * y_null, * alpha, * beta, * delta, * exact, * A, * B, * C, * F;
 
 /*источник тепла*/
 double f(double u)
@@ -50,7 +50,7 @@ double k(double u)
 
 double u0(double x) /* U(x,0) = U_0(x)*/
 {
-	return 2 * sin(x); // В данном случае не используется, так как начальное распределение считаем по страшной формуле из Самарского Тихонова 
+	return 2 * sin(x); // В данном случае не используется, так как начальное распределение считаем по страшной формуле из Самарского
 }
 
 // граничные условия
@@ -108,50 +108,44 @@ void one_step(double* y, double tau, double time, double* new_y)
 
 	double* y_s1, * y_s;
 
-	y_s1 = (double*)calloc(N1 + 1, sizeof(double)); //s1 операция
-	y_s = (double*)calloc(N1 + 1, sizeof(double)); //s операция
+	y_s = (double*)calloc(N1 + 1, sizeof(double));
+	y_s1 = (double*)calloc(N1 + 1, sizeof(double));
 
 	for (int i = 0; i < N1 + 1; i++)
-		y_s1[i] = y[i];
-
-	for (int i = 0; i < N1 + 1; i++)
-		y_curr[i] = y[i];
+		y_s[i] = y[i];
 
 	do
 	{
 		count++;
 
 		for (int i = 0; i < N1 + 1; i++)
-			y_s[i] = y_s1[i];
+			y_s1[i] = y[i];
 
 		A[0] = 0;
-		A[1] = 0;
-		for (int i = 2; i < N1; i++)
+		B[0] = 0;
+		C[0] = 1;
+
+		for (int i = 1; i < N1; i++)
 			A[i] = (k0 * gamma / 2) * (pow(y_s[i - 1], sigma) + pow(y_s[i], sigma));
 
-		C[0] = 0;
 		for (int i = 1; i < N1; i++)
 			C[i] = -1 - (k0 * gamma / 2) * (pow(y_s[i + 1], sigma) + 2 * pow(y_s[i], sigma) + pow(y_s[i - 1], sigma));
 
-		B[0] = 0;
 		for (int i = 1; i < N1 - 1; i++)
 			B[i] = (k0 * gamma / 2) * (pow(y_s[i + 1], sigma) + pow(y_s[i], sigma));
 
 		for (int i = 0; i < N1; i++)
-			F[i] = -y_curr[i] - tau * q0 * pow(y_s[i], betta);
+			F[i] = -y[i] - tau * q0 * pow(y_s[i], betta);
 
-		alpha[0] = 0; alpha[1] = 0; alpha[2] = -B[1] / C[1];
-		beta[0] = 0; beta[1] = 0;
-		beta[1] = F[1] / C[1];
+		alpha[0] = 0;
+		beta[0] = 0;
 
-
-		for (int i = 3; i < N1; i++)
+		for (int i = 1; i < N1; i++)
 		{
 			alpha[i] = -B[i - 1] / (A[i - 1] * alpha[i - 1] + C[i - 1]);
 			beta[i] = (F[i - 1] - A[i - 1] * beta[i - 1]) / (A[i - 1] * alpha[i - 1] + C[i - 1]);
 		}
 
-		//Не забыть про граничные условия
 		y_s1[0] = u1(time);
 		y_s1[N1] = u2(time);
 
@@ -159,20 +153,18 @@ void one_step(double* y, double tau, double time, double* new_y)
 		for (int i = N1 - 2; i > 0; i--)
 			y_s1[i] = alpha[i + 1] * y_s1[i + 1] + beta[i + 1];
 
-		//Проконстрлируем погрешность
-		accuracy = max2(y_s1, y_s) / max1(y_s1);
-		if ((accuracy <= eps) || (count == 2))
+		accuracy = max2(y_s1, y) / max1(y_s1);
+		if ((accuracy <= eps) || (count == 10))
 			break;
 
 	} while (true);
 
-	//Скопируем массив
 	for (int i = 0; i < N1 + 1; i++)
 		new_y[i] = y_s1[i];
 
 }
 
-//Неявная схема методом прогонки
+//Неявная схема
 void implicit_scheme(double* y, double tau)
 {
 	double current_time = 0.0;
@@ -259,12 +251,6 @@ int main()
 
 	//Начальное распределение
 	y_null = (double*)calloc(N1 + 1, sizeof(double));
-
-	//Данные на i-ом слое
-	y_curr = (double*)calloc(N1 + 1, sizeof(double));
-	
-	//Данные на i+1 слое
-	y_next = (double*)calloc(N1 + 1, sizeof(double));
 
 	//Точное решение
 	exact = (double*)calloc(N1 + 1, sizeof(double)); 
